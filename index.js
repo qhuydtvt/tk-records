@@ -2,11 +2,13 @@ var express = require('express');
 var mongoose = require('mongoose');
 var morgan = require('morgan');
 var bodyParser = require('body-parser');
-var argon2 = require('argon2');
+var bcrypt = require('bcrypt');
 
 var config = require('./config');
 var jwt = require('jsonwebtoken');
 var User = require('./models/user');
+
+const saltRounds = 10;
 
 var app = express();
 mongoose.connect(config.database, { useMongoClient: true });
@@ -30,8 +32,16 @@ app.get('/', function(request, response) {
 
 app.get('/api/test-hash', function(req, res) {
   var password = req.query.password;
-  argon2.hash(password).then(hash => {
-    res.json({password:hash});
+  bcrypt.hash(password, saltRounds, function(err, hash) {
+    res.json({hash});
+  });
+});
+
+app.get('/api/verify-password', function(req, res) {
+  var password = req.query.password;
+  var hash = req.query.hash;
+  bcrypt.compare(password, hash, function(err, compare) {
+    res.json({result: compare});
   });
 });
 
