@@ -45,7 +45,7 @@ app.get('/api/verify-password', function(req, res) {
   });
 });
 
-app.post('/api/register', function(req, res) {
+app.post('/api/users', function(req, res) {
   const body = req.body;
   const username = body.username;
   const password = body.password;
@@ -82,7 +82,7 @@ app.post('/api/register', function(req, res) {
         message: "User already registered"
       });
     } else {
-      argon2.hash(password).then(hash => {
+      bcrypt.hash(password, saltRounds, function(err, hash) {
         saveUserFunc(hash);
       });
     }
