@@ -45,6 +45,31 @@ app.get('/api/verify-password', function(req, res) {
   });
 });
 
+app.post('/api/login', function(req, res) {
+  const body = req.body;
+  const username = body.username;
+  const password = body.password;
+  User.findOne({'name': username}, function(err, user) {
+    if (err) {
+      res.json({ result: 0, message: "Something wrong", error: err });
+    }
+
+    if (!user) {
+      res.json( {result: 0, message:'User not found'} );
+    } else {
+      bcrypt.compare(password, user.password, function(err, compare) {
+        if (compare) {
+            // TODO: create token here
+            res.json({ result: 1, message: "Login ok" });
+            // TODO: Log user in here
+        } else {
+          res.json({result: 1, message: "Password doesn't match"});
+        }
+      });
+    }
+  });
+});
+
 app.post('/api/users', function(req, res) {
   const body = req.body;
   const username = body.username;
@@ -87,7 +112,6 @@ app.post('/api/users', function(req, res) {
       });
     }
   });
-
 });
 
 app.listen(app.get('port'), function() {
