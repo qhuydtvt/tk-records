@@ -26,26 +26,15 @@ app.use(express.static(__dirname + '/public'));
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
+const apiRoutes = express.Router();
+
 app.get('/', function(request, response) {
   response.render('pages/index');
 });
 
-app.get('/api/test-hash', function(req, res) {
-  var password = req.query.password;
-  bcrypt.hash(password, saltRounds, function(err, hash) {
-    res.json({hash});
-  });
-});
 
-app.get('/api/verify-password', function(req, res) {
-  var password = req.query.password;
-  var hash = req.query.hash;
-  bcrypt.compare(password, hash, function(err, compare) {
-    res.json({result: compare});
-  });
-});
 
-app.post('/api/login', function(req, res) {
+apiRoutes.post('/login', function(req, res) {
   const body = req.body;
   const username = body.username;
   const password = body.password;
@@ -59,8 +48,8 @@ app.post('/api/login', function(req, res) {
     } else {
       bcrypt.compare(password, user.password, function(err, compare) {
         if (compare) {
-            // TODO: create token here
-            res.json({ result: 1, message: "Login ok" });
+            const token = jwt.sign(user, app.get('superSecret'), { expiresIn: '1h' } );
+            res.json({ result: 1, message: "Login ok", token: token });
             // TODO: Log user in here
         } else {
           res.json({result: 1, message: "Password doesn't match"});
@@ -70,7 +59,7 @@ app.post('/api/login', function(req, res) {
   });
 });
 
-app.post('/api/users', function(req, res) {
+apiRoutes.post('/users', function(req, res) {
   const body = req.body;
   const username = body.username;
   const password = body.password;
@@ -113,6 +102,39 @@ app.post('/api/users', function(req, res) {
     }
   });
 });
+
+apiRoutes.use(function(req, res, next){
+  var token = req.body.token || req.query.token || req.headers['x-access-token'];
+  if (token) {
+    jwt.verify(token, app.get('superSecret'), function(err, decoded){
+      if(err) {
+        return res.json({ result:0, message:"Cannot decode given token" });
+      } else {
+        req.user = decoded._doc;
+        next();
+      }
+    });
+  } else {
+    res.json({ result: 0, message: "Token not provided" });
+  }
+});
+
+apiRoutes.get('/test-hash', function(req, res) {
+  var password = req.query.password;
+  bcrypt.hash(password, saltRounds, function(err, hash) {
+    res.json({hash: hash});
+  });
+});
+
+apiRoutes.get('/api/verify-password', function(req, res) {
+  var password = req.query.password;
+  var hash = req.query.hash;
+  bcrypt.compare(password, hash, function(err, compare) {
+    res.json({result: compare});
+  });
+});
+
+app.use('/api', apiRoutes);
 
 app.listen(app.get('port'), function() {
   console.log('Node app is running on port', app.get('port'));
