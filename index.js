@@ -35,8 +35,6 @@ app.get('/', function(request, response) {
   response.render('pages/index');
 });
 
-
-
 apiRoutes.post('/login', function(req, res) {
   const body = req.body;
   const username = body.username;
@@ -55,7 +53,7 @@ apiRoutes.post('/login', function(req, res) {
             res.json({ result: 1, message: "Login ok", token: token });
             // TODO: Log user in here
         } else {
-          res.json({result: 1, message: "Password doesn't match"});
+          res.json({result: 0, message: "Password doesn't match"});
         }
       });
     }
