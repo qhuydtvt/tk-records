@@ -121,7 +121,8 @@ apiRoutes.use(function(req, res, next){
 });
 
 apiRoutes.get('/login', function(req, res) {
-  res.json(req.user);
+  const {__v, _id, admin, ...user} = res.user;
+  res.json(user);
 });
 
 apiRoutes.get('/test-hash', function(req, res) {
