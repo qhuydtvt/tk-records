@@ -12,7 +12,7 @@ var User = require('./models/user');
 const saltRounds = 10;
 
 var app = express();
-app.use(cors());
+app.use(cors({credentials: true, origin: true}));
 
 mongoose.connect(config.database, { useMongoClient: true });
 
