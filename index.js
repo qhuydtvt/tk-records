@@ -49,7 +49,7 @@ apiRoutes.post('/login', function(req, res) {
     } else {
       bcrypt.compare(password, user.password, function(err, compare) {
         if (compare) {
-            const token = jwt.sign(user, app.get('superSecret'), { expiresIn: '1h' } );
+            const token = jwt.sign(user, app.get('superSecret'), { expiresIn: '2d' } );
             res.json({ result: 1, message: "Login ok", token: token });
             // TODO: Log user in here
         } else {
