@@ -3,6 +3,7 @@ var mongoose = require('mongoose');
 var morgan = require('morgan');
 var bodyParser = require('body-parser');
 var bcrypt = require('bcrypt');
+var cors = require('cors');
 
 var config = require('./config');
 var jwt = require('jsonwebtoken');
@@ -11,6 +12,8 @@ var User = require('./models/user');
 const saltRounds = 10;
 
 var app = express();
+app.use(cors());
+
 mongoose.connect(config.database, { useMongoClient: true });
 
 app.set('superSecret', config.secret);
@@ -139,18 +142,3 @@ app.use('/api', apiRoutes);
 app.listen(app.get('port'), function() {
   console.log('Node app is running on port', app.get('port'));
 });
-
-// var huy = new User({
-//   name: "Nguyen Huy",
-//   password: "password",
-//   admin: true
-// });
-
-// huy.save(function(err) {
-//   if (err) {
-//     console.log("Error" + err);
-//   }
-//   else {
-//     console.log("Save done");
-//   }
-// });
