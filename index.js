@@ -49,7 +49,7 @@ apiRoutes.post('/login', function(req, res) {
     } else {
       bcrypt.compare(password, user.password, function(err, compare) {
         if (compare) {
-            const token = jwt.sign(user, app.get('superSecret'), { expiresIn: '2d' } );
+            const token = jwt.sign(user, app.get('superSecret'), { expiresIn: '8d' } );
             res.json({ result: 1, message: "Login ok", token: token });
             // TODO: Log user in here
         } else {
@@ -120,6 +120,10 @@ apiRoutes.use(function(req, res, next){
   }
 });
 
+apiRoutes.get('/login', function(req, res) {
+  res.json(req.user);
+});
+
 apiRoutes.get('/test-hash', function(req, res) {
   var password = req.query.password;
   bcrypt.hash(password, saltRounds, function(err, hash) {
@@ -134,6 +138,7 @@ apiRoutes.get('/api/verify-password', function(req, res) {
     res.json({result: compare});
   });
 });
+
 
 app.use('/api', apiRoutes);
 
