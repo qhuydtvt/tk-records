@@ -121,7 +121,7 @@ apiRoutes.use(function(req, res, next){
 });
 
 apiRoutes.get('/login', function(req, res) {
-  const {__v, _id, admin, ...user} = res.user;
+  const {__v, _id, admin, ...user} = req.user;
   res.json(user);
 });
 
