@@ -4,6 +4,7 @@ var morgan = require('morgan');
 var bodyParser = require('body-parser');
 var bcrypt = require('bcrypt');
 var cors = require('cors');
+var _ = require('lodash');
 
 var config = require('./config');
 var jwt = require('jsonwebtoken');
@@ -121,8 +122,7 @@ apiRoutes.use(function(req, res, next){
 });
 
 apiRoutes.get('/login', function(req, res) {
-  const {__v, _id, admin, ...user} = req.user;
-  res.json(user);
+  res.json(_.pick(req.user, ['name', 'avatar']));
 });
 
 apiRoutes.get('/test-hash', function(req, res) {
