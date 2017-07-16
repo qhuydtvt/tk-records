@@ -9,6 +9,7 @@ var _ = require('lodash');
 var config = require('./config');
 var jwt = require('jsonwebtoken');
 var User = require('./models/user');
+var Record = require('./models/record');
 
 const saltRounds = 10;
 
@@ -31,6 +32,30 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
 const apiRoutes = express.Router();
+
+function addRecord(userName, className, role) {
+  const user = User.findOne({'name' : userName}, function(err, user) {
+    if (!err) {
+
+      const newRecord = new Record({
+        userId:user._id,
+        className:className,
+        role:role,
+        date: Date.now()
+      });
+
+      newRecord.save(function(err){
+        if (err) {
+          console.log("Error : " + err);
+        } else {
+          console.log("Added record OK");
+        }
+      });
+    } else {
+      console.log('Could not find user');
+    }
+  });
+}
 
 app.get('/', function(request, response) {
   response.render('pages/index');
@@ -125,6 +150,37 @@ apiRoutes.use(function(req, res, next){
 
 apiRoutes.get('/login', function(req, res) {
   res.json(_.pick(req.user, ['name', 'avatar', 'displayName']));
+});
+
+apiRoutes.post('/records', function(req, res) {
+  const body = req.body;
+  const className = body.className;
+  const role = body.role;
+  const date = body.date? new Date(body.date) : Date.now();
+  const user = req.user;
+  if (!className) {
+    res.json({result: 0, message: "'clasName' is empty"});
+  }
+  else if(!role) {
+    res.json({result: 0, message: "'role' is empty"});
+  }
+  else {
+    new Record(
+      {
+        userId: user._id,
+        className: className,
+        role: role,
+        date: date
+      }
+    )
+    .save(function(err) {
+      if (err) {
+        res.json({result: 0, message: "Error: " + err});
+      } else {
+        res.json({result: 1, message: "Record added"})
+      }
+    });
+  }
 });
 
 apiRoutes.get('/test-hash', function(req, res) {
