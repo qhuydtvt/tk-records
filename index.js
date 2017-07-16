@@ -5,6 +5,7 @@ var bodyParser = require('body-parser');
 var bcrypt = require('bcrypt');
 var cors = require('cors');
 var _ = require('lodash');
+var moment = require('moment');
 
 var config = require('./config');
 var jwt = require('jsonwebtoken');
@@ -149,7 +150,21 @@ apiRoutes.use(function(req, res, next){
 });
 
 apiRoutes.get('/login', function(req, res) {
-  res.json(_.pick(req.user, ['name', 'avatar', 'displayName']));
+  var today = moment().startOf('day')
+  var tomorrow = moment(today).add(1, 'days')
+  Record.count({
+    'userId': req.user._id,
+    'date': {
+      $gte: today.toDate(),
+      $lt: tomorrow.toDate()
+    }}, function(err, count) {
+      if (err) {
+        res.json({result: 0, message: 'Could not get record count:' + err});
+      } else {
+          const user = _.pick(req.user, ['name', 'avatar', 'displayName']);
+          res.json(_.extend(user, { recordCountToday: count }));
+      }
+    });
 });
 
 apiRoutes.post('/records', function(req, res) {
