@@ -8,7 +8,8 @@ module.exports = mongoose.model(
       name: String,
       password: String,
       admin: Boolean,
-      avatar: String
+      avatar: String,
+      displayName: String
     }
   )
 );

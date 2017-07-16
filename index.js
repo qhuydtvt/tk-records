@@ -66,6 +66,7 @@ apiRoutes.post('/users', function(req, res) {
   const username = body.username;
   const password = body.password;
   const avatar = body.avatar ? body.avatar : '';
+  const displayName = body.displayName;
 
   const saveUserFunc = function(hash) {
     const newUser = new User(
@@ -73,7 +74,8 @@ apiRoutes.post('/users', function(req, res) {
         name: username,
         password: hash,
         admin: false,
-        avatar: avatar
+        avatar: avatar,
+        displayName: displayName
       }
     );
     newUser.save(function(err) {
@@ -122,7 +124,7 @@ apiRoutes.use(function(req, res, next){
 });
 
 apiRoutes.get('/login', function(req, res) {
-  res.json(_.pick(req.user, ['name', 'avatar']));
+  res.json(_.pick(req.user, ['name', 'avatar', 'displayName']));
 });
 
 apiRoutes.get('/test-hash', function(req, res) {
