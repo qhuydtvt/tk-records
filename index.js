@@ -174,6 +174,30 @@ apiRoutes.get('/login', function(req, res) {
   });
 });
 
+apiRoutes.get('/stats', function(req, res) {
+  var today = moment().startOf('day')
+  var tomorrow = moment(today).add(1, 'days')
+  Record.aggregate([
+    {
+      $match: {
+        userId: new mongoose.Types.ObjectId(req.user._id),
+        date: {
+          $gte: today.toDate(),
+          $lt: tomorrow.toDate()
+        }
+      },
+    },
+    {
+      $group: {
+        _id: '$className',
+        count: {$sum :1}
+      }
+    }
+  ], function(err, groupResult) {
+      res.json(groupResult);
+    });
+ });
+
 apiRoutes.post('/records', function(req, res) {
   const body = req.body;
   const className = body.className;
