@@ -152,19 +152,26 @@ apiRoutes.use(function(req, res, next){
 apiRoutes.get('/login', function(req, res) {
   var today = moment().startOf('day')
   var tomorrow = moment(today).add(1, 'days')
-  Record.count({
-    'userId': req.user._id,
-    'date': {
-      $gte: today.toDate(),
-      $lt: tomorrow.toDate()
-    }}, function(err, count) {
-      if (err) {
-        res.json({result: 0, message: 'Could not get record count:' + err});
-      } else {
-          const user = _.pick(req.user, ['name', 'avatar', 'displayName']);
-          res.json(_.extend(user, { recordCountToday: count }));
+  Record.aggregate([
+    {
+      $match: {
+        userId: new mongoose.Types.ObjectId(req.user._id),
+        date: {
+          $gte: today.toDate(),
+          $lt: tomorrow.toDate()
+        }
+      },
+    },
+    {
+      $group: {
+        _id: '$className',
+        count: {$sum :1}
       }
-    });
+    }
+  ], function(err, groupResult) {
+      const user = _.pick(req.user, ['name', 'avatar', 'displayName']);
+      res.json(_.extend(user, { todayRecordsStat: groupResult }));
+  });
 });
 
 apiRoutes.post('/records', function(req, res) {
