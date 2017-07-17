@@ -183,8 +183,8 @@ apiRoutes.post('/records', function(req, res) {
     new Record(
       {
         userId: user._id,
-        className: className,
-        role: role,
+        className: className.toLowerCase(),
+        role: role.toLowerCase(),
         date: date
       }
     )
@@ -195,6 +195,24 @@ apiRoutes.post('/records', function(req, res) {
         res.json({result: 1, message: "Record added"})
       }
     });
+  }
+});
+
+apiRoutes.get('/records', function(req, res) {
+  const className = req.query.className;
+  console.log(req.user_id);
+  if (!className) {
+    res.json({ result: 0, message: "'className' not provided" })
+  } else {
+      Record.find({
+        userId: req.user._id,
+        className: new RegExp(className, "i")
+      })
+      .exec(function(err, records) {
+        res.json(records.map(function(record) {
+          return _.pick(record, ['className', 'role', 'date']);
+        }));
+      });
   }
 });
 
@@ -212,7 +230,6 @@ apiRoutes.get('/api/verify-password', function(req, res) {
     res.json({result: compare});
   });
 });
-
 
 app.use('/api', apiRoutes);
 
