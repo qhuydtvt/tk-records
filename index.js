@@ -45,7 +45,7 @@ function addRecord(userName, className, role) {
         date: Date.now()
       });
 
-      newRecord.save(function(err){
+      newRecord.save(function(err, addedRecord){
         if (err) {
           console.log("Error : " + err);
         } else {
@@ -219,11 +219,11 @@ apiRoutes.post('/records', function(req, res) {
         date: date
       }
     )
-    .save(function(err) {
+    .save(function(err, addedRecord) {
       if (err) {
         res.json({result: 0, message: "Error: " + err});
       } else {
-        res.json({result: 1, message: "Record added"})
+        res.json(_.pick(addedRecord, ['className', 'role', 'date']));
       }
     });
   }
