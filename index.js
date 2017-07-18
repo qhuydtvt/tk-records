@@ -235,6 +235,9 @@ apiRoutes.get('/records', function(req, res) {
       userId: req.user._id,
       className: new RegExp(className, "i")
     })
+    .sort({
+      date: 'desc'
+    })
     .exec(function(err, records) {
       res.json(records.map(function(record) {
         return _.pick(record, ['_id', 'className', 'role', 'date']);
