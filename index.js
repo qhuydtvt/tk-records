@@ -15,7 +15,7 @@ var Record = require('./models/record');
 const saltRounds = 10;
 
 var app = express();
-app.use(cors({credentials: true, origin: true}));
+app.use(cors({ credentials: true, origin: true }));
 
 mongoose.connect(config.database, { useMongoClient: true });
 
@@ -174,16 +174,22 @@ apiRoutes.get('/login', function(req, res) {
   });
 });
 
+apiRoutes.get('/testRange', function(req, res) {
+  var startDate = moment(req.query.startDate).startOf('days');
+  var endDate = moment(startDate).add(1, 'days');
+  res.json({ startDate, endDate });
+});
+
 apiRoutes.get('/stats', function(req, res) {
-  var today = moment().startOf('day')
-  var tomorrow = moment(today).add(1, 'days')
+  var startDate = moment(req.query.startDate).startOf('days');
+  var endDate = moment(startDate).add(1, 'days');
   Record.aggregate([
     {
       $match: {
         userId: new mongoose.Types.ObjectId(req.user._id),
         date: {
-          $gte: today.toDate(),
-          $lt: tomorrow.toDate()
+          $gte: startDate.toDate(),
+          $lt: endDate.toDate()
         }
       },
     },
