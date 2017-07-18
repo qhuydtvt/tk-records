@@ -242,6 +242,32 @@ apiRoutes.get('/records', function(req, res) {
     });
 });
 
+apiRoutes.delete('/records/:recordId', function(req, res) {
+  const recordId = req.params.recordId;
+  if (!recordId) {
+    res.json({
+      result: 0,
+      message: 'Record id not provided'
+    });
+  } else {
+    Record.remove({
+      _id: recordId
+    }, function(err, removedRecord){
+      if (err) {
+        res.json({
+          result: 0,
+          message: 'Record deleting failed ' + err
+        });
+      } else {
+        res.json({
+          result: 1,
+          message: 'Record deleted sucessfully'
+        });
+      }
+    });
+  }
+});
+
 apiRoutes.get('/test-hash', function(req, res) {
   var password = req.query.password;
   bcrypt.hash(password, saltRounds, function(err, hash) {
