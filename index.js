@@ -237,7 +237,7 @@ apiRoutes.get('/records', function(req, res) {
     })
     .exec(function(err, records) {
       res.json(records.map(function(record) {
-        return _.pick(record, ['className', 'role', 'date']);
+        return _.pick(record, ['_id', 'className', 'role', 'date']);
       }));
     });
 });
