@@ -251,6 +251,7 @@ apiRoutes.delete('/records/:recordId', function(req, res) {
     });
   } else {
     Record.remove({
+      userId: req.user._id,
       _id: recordId
     }, function(err, removedRecord){
       if (err) {
