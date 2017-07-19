@@ -243,6 +243,32 @@ apiRoutes.post('/records', function(req, res) {
   }
 });
 
+apiRoutes.get('/open/records', function(req, res) {
+  const queryExec = function(filter) {
+    Record
+      .find(filter)
+      .sort({
+        date: 'desc'
+      })
+      .exec(function(err, records) {
+        res.json(records.map(function(record) {
+          return _.pick(record, ['_id', 'className', 'role', 'date']);
+        }));
+      });
+  }
+
+  var startDate = moment(req.query.startDate);
+  var endDate = moment(req.query.endDate);
+  queryExec({
+      userId: req.user._id,
+      className: new RegExp(className, "i"),
+      date: {
+        $gte: startDate.toDate(),
+        $lt: endDate.toDate()
+      }
+    });
+});
+
 apiRoutes.get('/records', function(req, res) {
   const className = req.query.className ? req.query.className : '';
   const queryExec = function(filter) {
