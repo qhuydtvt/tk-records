@@ -152,10 +152,6 @@ apiRoutes.use(function(req, res, next){
   }
 });
 
-apiRoutes.get('/open/test', function(req, res) {
-  res.json({ 'test': 'ok' });
-});
-
 apiRoutes.get('/login', function(req, res) {
   var today = moment().startOf('day')
   var tomorrow = moment(today).add(1, 'days')
@@ -247,16 +243,21 @@ apiRoutes.get('/open/records', function(req, res) {
   const queryExec = function(filter) {
     Record
       .find(filter)
+      .populate('userId')
       .sort({
         date: 'desc'
       })
       .exec(function(err, records) {
         res.json(records.map(function(record) {
-          return _.pick(record, ['_id', 'className', 'role', 'date']);
+          return {
+            date: record.date,
+            clasName: record.className,
+            role: record.role,
+            user: record.userId.displayName
+          }
         }));
       });
   }
-
   var startDate = moment(req.query.startDate);
   var endDate = moment(req.query.endDate);
   queryExec({
