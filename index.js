@@ -135,7 +135,10 @@ apiRoutes.post('/users', function(req, res) {
 
 apiRoutes.use(function(req, res, next){
   var token = req.body.token || req.query.token || req.headers['x-access-token'];
-  if (token) {
+  if (req.path.startsWith('/open')) {
+    next();
+  }
+  else if (token) {
     jwt.verify(token, app.get('superSecret'), function(err, decoded){
       if(err) {
         return res.json({ result:0, message:"Cannot decode given token" });
@@ -147,6 +150,10 @@ apiRoutes.use(function(req, res, next){
   } else {
     res.json({ result: 0, message: "Token not provided" });
   }
+});
+
+apiRoutes.get('/open/test', function(req, res) {
+  res.json({ 'test': 'ok' });
 });
 
 apiRoutes.get('/login', function(req, res) {
