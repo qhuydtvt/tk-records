@@ -251,7 +251,7 @@ apiRoutes.get('/open/records', function(req, res) {
         res.json(records.map(function(record) {
           return {
             date: record.date,
-            clasName: record.className,
+            className: record.className,
             role: record.role,
             user: record.userId.displayName
           }
