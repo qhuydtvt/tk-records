@@ -181,8 +181,8 @@ apiRoutes.get('/testRange', function(req, res) {
 });
 
 apiRoutes.get('/stats', function(req, res) {
-  var startDate = moment(req.query.startDate).startOf('days');
-  var endDate = moment(startDate).add(1, 'days');
+  var startDate = moment(req.query.startDate);
+  var endDate = moment(req.query.endDate);
   Record.aggregate([
     {
       $match: {
