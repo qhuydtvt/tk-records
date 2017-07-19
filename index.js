@@ -204,6 +204,7 @@ apiRoutes.get('/stats', function(req, res) {
     });
  });
 
+
 apiRoutes.post('/records', function(req, res) {
   const body = req.body;
   const className = body.className;
@@ -237,18 +238,36 @@ apiRoutes.post('/records', function(req, res) {
 
 apiRoutes.get('/records', function(req, res) {
   const className = req.query.className ? req.query.className : '';
-  Record.find({
-      userId: req.user._id,
-      className: new RegExp(className, "i")
-    })
-    .sort({
-      date: 'desc'
-    })
-    .exec(function(err, records) {
-      res.json(records.map(function(record) {
-        return _.pick(record, ['_id', 'className', 'role', 'date']);
-      }));
-    });
+  const queryExec = function(filter) {
+    Record
+      .find(filter)
+      .sort({
+        date: 'desc'
+      })
+      .exec(function(err, records) {
+        res.json(records.map(function(record) {
+          return _.pick(record, ['_id', 'className', 'role', 'date']);
+        }));
+      });
+  }
+
+  if (req.query.startDate && req.query.endDate) {
+    var startDate = moment(req.query.startDate);
+    var endDate = moment(req.query.endDate);
+    queryExec({
+        userId: req.user._id,
+        className: new RegExp(className, "i"),
+        date: {
+          $gte: startDate.toDate(),
+          $lt: endDate.toDate()
+        }
+      });
+  } else {
+    queryExec({
+        userId: req.user._id,
+        className: new RegExp(className, "i")
+      });
+  }
 });
 
 apiRoutes.delete('/records/:recordId', function(req, res) {
