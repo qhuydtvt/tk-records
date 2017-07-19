@@ -260,8 +260,6 @@ apiRoutes.get('/open/records', function(req, res) {
   var startDate = moment(req.query.startDate);
   var endDate = moment(req.query.endDate);
   queryExec({
-      userId: req.user._id,
-      className: new RegExp(className, "i"),
       date: {
         $gte: startDate.toDate(),
         $lt: endDate.toDate()
